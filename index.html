@@ -28,15 +28,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #075e54;
+            background: #075e54; /* Cor do fundo do WhatsApp */
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             color: white;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             z-index: 100;
+            opacity: 1;
+            transition: opacity 1s ease-in-out;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
         }
 
         .spinner {
@@ -54,42 +66,53 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Tela de chat */
         .chat-container {
-            display: none; /* Oculta o chat até a tela de carregamento sumir */
+            display: none;
             width: 380px;
             height: 580px;
             background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .chat-container.show {
+            opacity: 1;
+            display: flex;
         }
 
         .header {
-            background-color: #075e54;
+            background-color: #075e54; /* Cor do WhatsApp */
             color: white;
             padding: 15px;
             font-weight: bold;
             font-size: 18px;
             text-align: center;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .chat-box {
             flex-grow: 1;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background-color: #f2f2f2;
+            gap: 12px;
+            background-color: #f9f9f9;
+            border-bottom: 2px solid #e1e1e1;
         }
 
         .message {
             max-width: 80%;
             padding: 12px;
-            border-radius: 20px;
+            border-radius: 18px;
             font-size: 16px;
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -97,12 +120,24 @@
         .bot-message {
             background-color: #dcf8c6;
             align-self: flex-start;
+            animation: slideInLeft 0.5s ease-in-out;
         }
 
         .user-message {
             background-color: #25d366;
             color: white;
             align-self: flex-end;
+            animation: slideInRight 0.5s ease-in-out;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .typing {
@@ -113,48 +148,55 @@
         .button-container {
             display: flex;
             justify-content: center;
-            padding: 10px;
+            padding: 12px;
             background-color: #fff;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .send-button {
-            background-color: #25d366;
+            background-color: #25d366; /* Cor do botão do WhatsApp */
             border: none;
             border-radius: 25px;
-            padding: 10px 20px;
+            padding: 12px 25px;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 16px;
             color: white;
             font-weight: bold;
             transition: 0.3s;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .send-button:hover {
             background-color: #128c7e;
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
         }
 
         .input-container {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 15px;
             background-color: #fff;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
             box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .input-container input {
             width: 100%;
-            padding: 12px 18px;
+            padding: 14px 18px;
             margin-right: 10px;
-            border-radius: 25px;
+            border-radius: 30px;
             border: 1px solid #ddd;
             background-color: #f0f0f0;
             font-size: 15px;
+            transition: border-color 0.3s;
         }
 
         .input-container input:focus {
             border-color: #075e54;
+            background-color: #fff;
         }
     </style>
 </head>
@@ -208,7 +250,7 @@
                     novaMensagem.textContent = texto;
                     chatBox.appendChild(novaMensagem);
                     chatBox.scrollTop = chatBox.scrollHeight;
-                }, delay);
+                }, 2000); // Delay de 2 segundos
             } else {
                 const novaMensagem = document.createElement("div");
                 novaMensagem.classList.add("message", "user-message");
@@ -234,11 +276,12 @@
                 valor = parseInt(valorDigitado);
                 adicionarMensagem(`Você escolheu ${valor} semanas.`, "user");
 
+                // A IA responde após um delay de 2 segundos
                 setTimeout(() => {
                     adicionarMensagem(`O custo total será R$${valor * 7}. Agora me informe seu UID.`, "bot");
                     document.getElementById("inputContainer").style.display = "none";
                     document.getElementById("nameInputContainer").style.display = "flex";
-                }, 1000);
+                }, 2000);  // Delay de 2 segundos
             }
         }
 
@@ -251,10 +294,9 @@
                 adicionarMensagem("Perfeito! Vou direcionar para meu criador.", "bot");
 
                 setTimeout(() => {
-                    // Delay de 4 segundos para redirecionamento
                     window.open(`https://api.whatsapp.com/send?phone=5566999121455&text=Quero entrar no ranking VIP. Valor: R$${custo}. Meu ID: ${nome}`, '_blank');
-                }, 4000); // Delay de 4 segundos
-
+                }, 2000);
+                
                 document.getElementById("nameInputContainer").style.display = "none";
             } else {
                 adicionarMensagem("Por favor, insira um ID válido.", "bot");
@@ -263,8 +305,12 @@
 
         function iniciarCarregamento() {
             setTimeout(() => {
-                document.getElementById("loadingScreen").style.display = "none";
-                document.getElementById("chatContainer").style.display = "flex";
+                document.getElementById("loadingScreen").classList.add("fade-out");
+
+                setTimeout(() => {
+                    document.getElementById("loadingScreen").style.display = "none";
+                    document.getElementById("chatContainer").classList.add("show");
+                }, 1000);
             }, 3000);
         }
 
