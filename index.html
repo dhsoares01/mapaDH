@@ -251,9 +251,10 @@
                 adicionarMensagem("Perfeito! Vou direcionar para meu criador.", "bot");
 
                 setTimeout(() => {
+                    // Delay de 4 segundos para redirecionamento
                     window.open(`https://api.whatsapp.com/send?phone=5566999121455&text=Quero entrar no ranking VIP. Valor: R$${custo}. Meu ID: ${nome}`, '_blank');
-                }, 3000);
-                
+                }, 4000); // Delay de 4 segundos
+
                 document.getElementById("nameInputContainer").style.display = "none";
             } else {
                 adicionarMensagem("Por favor, insira um ID válido.", "bot");
