@@ -1,321 +1,269 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat IA</title>
+    <title>DH SOARES</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-
+        /* Estilos gerais */
         body {
-            background-color: #e5ddd5;
+            background: linear-gradient(45deg, #121212, #1e1e1e);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        /* Tela de Carregamento */
+        .loading-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading-bar {
+            width: 70%;
+            height: 10px;
+            background-color: #444;
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
             overflow: hidden;
         }
 
-        /* Tela de carregamento */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .loading-progress {
             height: 100%;
-            background: #075e54; /* Cor do fundo do WhatsApp */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 100;
-            opacity: 1;
-            transition: opacity 1s ease-in-out;
-            animation: fadeIn 1s ease-in-out;
+            background: linear-gradient(90deg, #00bcd4, #0097a7);
+            width: 0;
+            border-radius: 10px;
+            animation: loading 3s forwards;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Animação da barra de carregamento */
+        @keyframes loading {
+            100% {
+                width: 100%;
+            }
         }
 
-        .loading-screen.fade-out {
-            opacity: 0;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-top: 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Tela de chat */
-        .chat-container {
+        /* Tela de Atenção */
+        .attention-screen {
             display: none;
-            width: 380px;
-            height: 580px;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        .chat-container.show {
-            opacity: 1;
-            display: flex;
-        }
-
-        .header {
-            background-color: #075e54; /* Cor do WhatsApp */
-            color: white;
-            padding: 15px;
-            font-weight: bold;
-            font-size: 18px;
             text-align: center;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+            width: 80%;
+            max-width: 400px;
         }
 
-        .chat-box {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background-color: #f9f9f9;
-            border-bottom: 2px solid #e1e1e1;
+        .attention-screen h2 {
+            font-size: 36px;
+            color: #ffcc00;
+            margin-bottom: 15px;
         }
 
-        .message {
-            max-width: 80%;
-            padding: 12px;
-            border-radius: 18px;
-            font-size: 16px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        .attention-screen p {
+            font-size: 18px;
+            margin-bottom: 25px;
         }
 
-        .bot-message {
-            background-color: #dcf8c6;
-            align-self: flex-start;
-            animation: slideInLeft 0.5s ease-in-out;
-        }
-
-        .user-message {
-            background-color: #25d366;
-            color: white;
-            align-self: flex-end;
-            animation: slideInRight 0.5s ease-in-out;
-        }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .typing {
-            font-style: italic;
-            color: gray;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            padding: 12px;
-            background-color: #fff;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .send-button {
-            background-color: #25d366; /* Cor do botão do WhatsApp */
-            border: none;
-            border-radius: 25px;
+        .submit-button {
             padding: 12px 25px;
-            cursor: pointer;
-            font-size: 16px;
+            background: linear-gradient(45deg, #00bcd4, #0097a7);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
             color: white;
-            font-weight: bold;
-            transition: 0.3s;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 120px;
         }
 
-        .send-button:hover {
-            background-color: #128c7e;
-            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+        .submit-button:hover {
+            background-color: #0097a7;
+        }
+
+        /* Formulário */
+        .form-container {
+            display: none;
+            padding: 40px;
+            border-radius: 20px;
+            background-color: #1e1e1e;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .form-container h1 {
+            font-size: 40px;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #fff;
         }
 
         .input-container {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background-color: #fff;
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
         }
 
-        .input-container input {
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: block;
+            font-weight: bold;
+            color: #ccc;
+        }
+
+        input {
             width: 100%;
-            padding: 14px 18px;
-            margin-right: 10px;
-            border-radius: 30px;
-            border: 1px solid #ddd;
-            background-color: #f0f0f0;
-            font-size: 15px;
-            transition: border-color 0.3s;
+            padding: 15px;
+            background-color: #333;
+            border: 2px solid #444;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: border 0.3s ease, background-color 0.3s ease;
+            box-sizing: border-box;
         }
 
-        .input-container input:focus {
-            border-color: #075e54;
-            background-color: #fff;
+        input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            background-color: #444;
+        }
+
+        input::placeholder {
+            color: #888;
+        }
+
+        .price-text {
+            color: #ffcc00;
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        .invalid-text, .id-invalid-text {
+            color: red;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 30px;
+            }
+
+            .form-container {
+                width: 90%;
+                padding: 25px;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+
+            .attention-screen {
+                width: 90%;
+                padding: 30px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <!-- Tela de carregamento -->
-    <div class="loading-screen" id="loadingScreen">
-        Carregando...
-        <div class="spinner"></div>
+    <!-- Tela de Carregamento -->
+    <div class="loading-screen">
+        <h1>Carregando...</h1>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
     </div>
 
-    <div class="chat-container" id="chatContainer">
-        <div class="header">Chat IA</div>
-        <div class="chat-box" id="chatBox">
-            <div class="message bot-message">
-                Olá! Você deseja comprar o VIP? Caso sim, pressione "Continuar".
-            </div>
+    <!-- Tela de Atenção -->
+    <div class="attention-screen">
+        <h2>Atenção!</h2>
+        <p>O VIP é pago, custa 7 reais por semana</p>
+        <button class="submit-button" onclick="showForm()">OK</button>
+    </div>
+
+    <!-- Formulário -->
+    <div class="form-container">
+        <h1>DH SOARES</h1>
+        <div class="input-container">
+            <label for="uid">Digite seu UID</label>
+            <input type="tel" id="uid" placeholder="Digite seu UID" inputmode="numeric" pattern="[0-9]*" maxlength="10">
+            <div id="id-invalid" class="id-invalid-text"></div>
         </div>
-        <div class="button-container" id="continueContainer">
-            <button class="send-button" onclick="continuar()">Continuar</button>
+        <div class="input-container">
+            <label for="weeks">Digite quantas semanas você deseja</label>
+            <input type="tel" id="weeks" placeholder="Digite quantas semanas" inputmode="numeric" pattern="[0-9]*" maxlength="1" oninput="calculatePrice()">
+            <div id="price" class="price-text"></div>
+            <div id="invalid" class="invalid-text"></div>
         </div>
-        <div class="input-container" id="inputContainer" style="display: none;">
-            <input id="userInput" type="number" placeholder="Digite a quantidade de semanas" min="1" max="9" />
-            <button class="send-button" onclick="enviarMensagem()">Enviar</button>
-        </div>
-        <div class="input-container" id="nameInputContainer" style="display: none;">
-            <input id="userNameInput" type="text" placeholder="Digite UID da sua conta" />
-            <button class="send-button" onclick="enviarNome()">Enviar</button>
-        </div>
+        <button class="submit-button" onclick="redirectToWhatsApp()">Enviar</button>
     </div>
 
     <script>
-        let valor = 0;
+        setTimeout(function() {
+            document.querySelector('.loading-screen').style.display = 'none';
+            document.querySelector('.attention-screen').style.display = 'block';
+        }, 3000);
 
-        function adicionarMensagem(texto, tipo) {
-            const chatBox = document.getElementById("chatBox");
+        function showForm() {
+            document.querySelector('.attention-screen').style.display = 'none';
+            document.querySelector('.form-container').style.display = 'block';
+        }
 
-            if (tipo === "bot") {
-                const typingMessage = document.createElement("div");
-                typingMessage.classList.add("message", "bot-message", "typing");
-                typingMessage.textContent = "Digitando...";
-                chatBox.appendChild(typingMessage);
-                chatBox.scrollTop = chatBox.scrollHeight;
+        function redirectToWhatsApp() {
+            var uid = document.getElementById('uid').value;
+            var weeks = document.getElementById('weeks').value;
+            var price = weeks * 7;
+            
+            // Verificação de ID
+            if (uid === '' || uid === '0') {
+                document.getElementById('id-invalid').textContent = 'ID inválido!';
+                return;
+            }
+            
+            // Verificação de semanas
+            if (weeks === '' || weeks === '0') {
+                document.getElementById('invalid').textContent = 'Número de semanas inválido!';
+                return;
+            }
 
-                const delay = Math.random() * 2000 + 1000;
+            // Construção da mensagem
+            var message = `Quero entrar no ranking VIP. Valor: R$${price.toFixed(2)}. Meu ID: ${uid}`;
 
-                setTimeout(() => {
-                    chatBox.removeChild(typingMessage);
-                    const novaMensagem = document.createElement("div");
-                    novaMensagem.classList.add("message", "bot-message");
-                    novaMensagem.textContent = texto;
-                    chatBox.appendChild(novaMensagem);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }, 2000); // Delay de 2 segundos
+            // Redirecionar para o WhatsApp usando a API com window.open
+            window.open(`https://api.whatsapp.com/send?phone=5566999121455&text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function calculatePrice() {
+            var weeks = document.getElementById('weeks').value;
+            var price = weeks * 7;
+            var priceText = document.getElementById('price');
+            var invalidText = document.getElementById('invalid');
+            
+            if (weeks && weeks > 0) {
+                priceText.textContent = 'Total: R$ ' + price.toFixed(2);
+                invalidText.textContent = '';
+            } else if (weeks === '0') {
+                priceText.textContent = '';
+                invalidText.textContent = 'Valor inválido!';
             } else {
-                const novaMensagem = document.createElement("div");
-                novaMensagem.classList.add("message", "user-message");
-                novaMensagem.textContent = texto;
-                chatBox.appendChild(novaMensagem);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                priceText.textContent = '';
+                invalidText.textContent = '';
             }
         }
-
-        function continuar() {
-            document.getElementById("continueContainer").style.display = "none";
-            adicionarMensagem("Ótimo! Agora me fala quantas semanas você deseja", "bot");
-            setTimeout(() => {
-                document.getElementById("inputContainer").style.display = "flex";
-            }, 2000);
-        }
-
-        function enviarMensagem() {
-            const input = document.getElementById("userInput");
-            const valorDigitado = input.value.trim();
-
-            if (valorDigitado !== "") {
-                valor = parseInt(valorDigitado);
-                adicionarMensagem(`Você escolheu ${valor} semanas.`, "user");
-
-                // A IA responde após um delay de 2 segundos
-                setTimeout(() => {
-                    adicionarMensagem(`O custo total será R$${valor * 7}. Agora me informe seu UID.`, "bot");
-                    document.getElementById("inputContainer").style.display = "none";
-                    document.getElementById("nameInputContainer").style.display = "flex";
-                }, 2000);  // Delay de 2 segundos
-            }
-        }
-
-        function enviarNome() {
-            const nome = document.getElementById("userNameInput").value.trim();
-
-            if (nome !== "") {
-                const custo = valor * 7;
-                adicionarMensagem(`ID: ${nome}`, "user");
-                adicionarMensagem("Perfeito! Vou direcionar para meu criador.", "bot");
-
-                setTimeout(() => {
-                    window.open(`https://api.whatsapp.com/send?phone=5566999121455&text=Quero entrar no ranking VIP. Valor: R$${custo}. Meu ID: ${nome}`, '_blank');
-                }, 2000);
-                
-                document.getElementById("nameInputContainer").style.display = "none";
-            } else {
-                adicionarMensagem("Por favor, insira um ID válido.", "bot");
-            }
-        }
-
-        function iniciarCarregamento() {
-            setTimeout(() => {
-                document.getElementById("loadingScreen").classList.add("fade-out");
-
-                setTimeout(() => {
-                    document.getElementById("loadingScreen").style.display = "none";
-                    document.getElementById("chatContainer").classList.add("show");
-                }, 1000);
-            }, 3000);
-        }
-
-        window.onload = iniciarCarregamento;
     </script>
-
 </body>
 </html>
