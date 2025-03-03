@@ -241,7 +241,7 @@
             }
 
             // Construção da mensagem
-            var message = `Quero entrar no ranking VIP. Valor: R$${price.toFixed(2)}. Meu ID: ${uid}`;
+            var message = `Quero comprar o VIP. Valor: R$${price.toFixed(2)}. Meu ID: ${uid}`;
 
             // Redirecionar para o WhatsApp usando a API com window.open
             window.open(`https://api.whatsapp.com/send?phone=5566999121455&text=${encodeURIComponent(message)}`, '_blank');
